@@ -11,7 +11,7 @@ class RichiestaRevocataModel(Base):
     data_revoca = Column(TIMESTAMP, nullable = True)
     email_nutrizionista = Column(String(45),  
                             nullable=False)
-    fk_paziente = Column(String(10), 
+    fk_paziente = Column(String(7), 
                             ForeignKey("paziente.id_paziente"), 
                             nullable=False)
     
