@@ -5,7 +5,7 @@ from flaskr.services.paziente_service import PazienteService
 from flaskr.namespaces import paziente_ns
 from flaskr.utils.jwt_custom_decorators import paziente_required
 from flaskr.db import get_session
-from flaskr.schemas import paziente as PazienteSchema
+from flaskr.schemas.paziente import PazienteSchema
 
 #json model required by flask_restx for expectations
 

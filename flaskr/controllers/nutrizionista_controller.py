@@ -5,7 +5,7 @@ from flaskr.services.nutrizionista_service import NutrizionistaService
 from flaskr.namespaces import paziente_ns
 from flaskr.utils.jwt_custom_decorators import paziente_required
 from flaskr.db import get_session
-from flaskr.schemas import nutrizionista as NutrizionistaSchema
+from flaskr.schemas.nutrizionista import NutrizionistaSchema
 
 
 
