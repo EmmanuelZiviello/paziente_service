@@ -6,8 +6,6 @@ RUN python -m pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY ./setup.py ./setup.py
-COPY ./resources ./resources
-COPY ./wsgi.py  ./wsgi.py
 COPY ./flaskr ./flaskr
 RUN pip install -e .
 
