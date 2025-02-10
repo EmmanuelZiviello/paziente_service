@@ -11,24 +11,18 @@ from flaskr.db import set_DB_CONFIG
 from flaskr.ma import ma
 
 from flaskr.namespaces import paziente_ns
-from flaskr.resources.nutrizionista.informativa_privacy import InformativaPrivacy
-from flaskr.resources.paziente.richiesta_aggiunta_paziente import RichiestaAggiuntaPaziente
+from flaskr.controllers.richiesta_aggiunta_paziente_controller import RichiestaAggiuntaPaziente
+from flaskr.controllers.paziente_controller import Paziente
+from flaskr.controllers.consensi_utente_controller import ConsensiUtente
+from flaskr.controllers.nutrizionista_controller import Nutrizionista
 
-from flaskr.resources.paziente.nutrizionista import Nutrizionista as NutrizionistaPaziente
-from flaskr.resources.paziente.paziente import Paziente as Personal
-
-
-from flaskr.resources.paziente.password import PasswordChanger
-from flaskr.resources.paziente.template_password_changer_controller import TemplatePasswordChangerController
-from flaskr.resources.paziente.consensi_utente import ConsensiUtente
-from flaskr.resources.nutrizionista.paziente import Paziente , Pazienti
 
 from flaskr.utils.jwt_custom_decorators import NoAuthorizationException
 
 
 
 
-from flaskr.utils.redis import get_redis_connection, init_redis_connection_pool
+#from flaskr.utils.redis import get_redis_connection, init_redis_connection_pool
 
 from logging import getLogger
 
@@ -60,11 +54,11 @@ def create_app():
     
     
     # teardown connection pool redis
-    @app.teardown_appcontext
-    def close_redis_connection(exception=None):
-        redis = get_redis_connection()
-        if redis is not None:
-            redis.connection_pool.disconnect()
+   # @app.teardown_appcontext
+    #def close_redis_connection(exception=None):
+     #   redis = get_redis_connection()
+      #  if redis is not None:
+       #     redis.connection_pool.disconnect()
 
 
    
@@ -75,20 +69,20 @@ def create_app():
 
 
     # controllo se token è in blacklist
-    @jwt.token_in_blocklist_loader
-    def check_if_token_is_revoked(jwt_header, jwt_payload):
-        if os.environ.get('FLASK_ENV') == "Test":
-            return False
-        jti = jwt_payload["jti"]
-        try:
-            redis_connection = get_redis_connection()
-        except Exception as e:
-            print(e)
-            raise e
-        token_in_redis = redis_connection.get(jti)
-        return token_in_redis is not None
+  #  @jwt.token_in_blocklist_loader
+   # def check_if_token_is_revoked(jwt_header, jwt_payload):
+    #    if os.environ.get('FLASK_ENV') == "Test":
+     #       return False
+      #  jti = jwt_payload["jti"]
+       # try:
+        #    redis_connection = get_redis_connection()
+        #except Exception as e:
+         #   print(e)
+          #  raise e
+        #token_in_redis = redis_connection.get(jti)
+        #return token_in_redis is not None
 
-    ma.init_app(app)
+   # ma.init_app(app)
 
     #namespaces here
     api.add_namespace(paziente_ns)
@@ -102,39 +96,39 @@ def create_app():
         return response
 
     #errors handlers here
-    @api.errorhandler(ValidationError)
-    def handle_validations_error(error: ValidationError):
-        return {'message': 'An error in validation accoured'}, 400
+  #  @api.errorhandler(ValidationError)
+   # def handle_validations_error(error: ValidationError):
+    #    return {'message': 'An error in validation accoured'}, 400
 
-    @api.errorhandler(ValidationErr)
-    def handle_validations_error(error: ValidationErr):
-        return error, 400
+#    @api.errorhandler(ValidationErr)
+ #   def handle_validations_error(error: ValidationErr):
+  #      return error, 400
         
-    @api.errorhandler(NoResultFound)
-    def handle_NoResultFound_error(error: NoResultFound):
-        return {'message': str(error.args)}, 404
+ #   @api.errorhandler(NoResultFound)
+  #  def handle_NoResultFound_error(error: NoResultFound):
+   #     return {'message': str(error.args)}, 404
 
 
-    @api.errorhandler(SMTPException)
-    def handle_SMTPExceprion_error(error: SMTPException):
-        return {'message': error.strerror}, 500
+   # @api.errorhandler(SMTPException)
+   # def handle_SMTPExceprion_error(error: SMTPException):
+    #    return {'message': error.strerror}, 500
 
-    @api.errorhandler(NoAuthorizationException)
-    def handle_SMTPExceprion_error(error: NoAuthorizationException):
-        return {'message': error.args}, 403
+   # @api.errorhandler(NoAuthorizationException)
+    #def handle_SMTPExceprion_error(error: NoAuthorizationException):
+     #   return {'message': error.args}, 403
     
 
    
 
     #paziente resources here
-    paziente_ns.add_resource(Personal, '')
+    paziente_ns.add_resource(Paziente, '')
     #paziente_ns.add_resource(Visita, '/misurazione_medico')
    # paziente_ns.add_resource(PazienteDieta, '/dieta')
    # paziente_ns.add_resource(Misurazione, '/misurazione')
   #  paziente_ns.add_resource(Misurazioni, '/misurazioni')
     paziente_ns.add_resource(ConsensiUtente, '/consensi_utente')
     paziente_ns.add_resource(RichiestaAggiuntaPaziente, '/richiesta_aggiunta_paziente')
-    paziente_ns.add_resource(NutrizionistaPaziente, '/nutrizionista')
+    paziente_ns.add_resource(Nutrizionista, '/nutrizionista')
    
     
     
