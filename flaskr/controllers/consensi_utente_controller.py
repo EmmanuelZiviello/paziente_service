@@ -15,7 +15,7 @@ consensi_utenti_put = paziente_ns.model('consensi_utente', {
     "trainingAI_user_consent": fields.Boolean(required=False)
 })
 
-class ConsensiUtenteController(Resource):
+class ConsensiUtente(Resource):
 
     @paziente_ns.doc('recupera i consensi utente')
     @paziente_required()

@@ -1,17 +1,9 @@
 from flaskr.db import Base
-from flaskr.models.patologia import PatologiaModel
-from flaskr.models.allergia import AllergiaModel
-from flaskr.models.intolleranza import IntolleranzaModel
-from flaskr.models.nutrizionista import NutrizionistaModel
 from flaskr.models.consensi_utente import ConsensiUtenteModel
-from flaskr.models.richiesta_aggiunta_paziente import RichiestaAggiuntaPazienteModel
-from flaskr.models.richiesta_revocata import RichiestaRevocataModel
-from flaskr.models.patologia_paziente import PatologiaPaziente
+
 from sqlalchemy import Column, String, Date, ForeignKey, Integer, LargeBinary, Boolean
 from sqlalchemy.orm import relationship, backref
-from flaskr.models.patologia_paziente import PatologiaPaziente
-from flaskr.models.allergia_paziente import AllergiaPaziente
-from flaskr.models.intolleranza_paziente import IntolleranzaPaziente
+
 
 class PazienteModel(Base):
     __tablename__ = 'paziente'
@@ -23,8 +15,8 @@ class PazienteModel(Base):
     sesso = Column(Boolean)
     fk_nutrizionista = Column(Integer, ForeignKey('nutrizionista.id_nutrizionista', onupdate="CASCADE"), nullable=True)
     nutrizionista = relationship("NutrizionistaModel", back_populates='pazienti', lazy=True)
-    misurazioni_medico = relationship("MisurazioneMedicoModel", back_populates='paziente', lazy=True, cascade='delete')
-    dieta_paziente = relationship("DietaModel",  back_populates='paziente' , lazy=True, cascade='delete')
+   # misurazioni_medico = relationship("MisurazioneMedicoModel", back_populates='paziente', lazy=True, cascade='delete')
+    #dieta_paziente = relationship("DietaModel",  back_populates='paziente' , lazy=True, cascade='delete')
     
     # Relazione verso la tabella di transizione per le patologie
     patologie = relationship('PatologiaModel', secondary='patologia_paziente', backref=backref('pazienti', lazy=True))
@@ -33,7 +25,7 @@ class PazienteModel(Base):
     # Relazione verso la tabella di transizione per le intolleranze
     intolleranze = relationship('IntolleranzaModel', secondary='intolleranza_paziente', backref=backref('pazienti', lazy=True))
     
-    misurazioni = relationship("MisurazioneModel", back_populates='paziente', lazy=True, cascade='delete')
+   # misurazioni = relationship("MisurazioneModel", back_populates='paziente', lazy=True, cascade='delete')
     consensi_utente = relationship("ConsensiUtenteModel", back_populates='paziente', lazy=True, cascade='delete', uselist=False)
     richieste_aggiunta_paziente = relationship("RichiestaAggiuntaPazienteModel", lazy=True, cascade='all, delete')
     richieste_revocate = relationship("RichiestaRevocataModel", lazy=True, cascade='all, delete-orphan')

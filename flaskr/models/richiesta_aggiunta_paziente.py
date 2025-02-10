@@ -2,8 +2,8 @@ from datetime import datetime
 from flaskr.db import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, TIMESTAMP, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
-from flaskr.models.paziente import PazienteModel
-from flaskr.models.nutrizionista import NutrizionistaModel
+
+
 
 
 

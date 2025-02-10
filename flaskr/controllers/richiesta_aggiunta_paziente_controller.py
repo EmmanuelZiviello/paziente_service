@@ -17,7 +17,7 @@ deleteRichiestaRequestModel = paziente_ns.model('delete Richiesta Request Model'
 
 richiesta_schema_for_dump = RichiestaAggiuntaPazienteSchema
 
-class RichiestaAggiuntaPazienteResource(Resource):
+class RichiestaAggiuntaPaziente(Resource):
 
     @paziente_ns.doc('recupera le richieste attive')
     @paziente_required()
