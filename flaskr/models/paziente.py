@@ -27,7 +27,7 @@ class PazienteModel(Base):
     
    # misurazioni = relationship("MisurazioneModel", back_populates='paziente', lazy=True, cascade='delete')
     consensi_utente = relationship("ConsensiUtenteModel", back_populates='paziente', lazy=True, cascade='delete', uselist=False)
-    richieste_aggiunta_paziente = relationship("RichiestaAggiuntaPazienteModel", lazy=True, cascade='all, delete')
+    richieste_aggiunta_paziente = relationship("RichiestaAggiuntaPazienteModel", back_populates='paziente',lazy=True, cascade='all, delete')
     richieste_revocate = relationship("RichiestaRevocataModel", lazy=True, cascade='all, delete-orphan')
 
     def __init__(self, id_paziente, email, password, data_nascita=None, sesso=None, fk_nutrizionista=None):
