@@ -3,6 +3,7 @@ from flaskr.models.richiesta_aggiunta_paziente import RichiestaAggiuntaPazienteM
 from flaskr.models.richiesta_revocata import RichiestaRevocataModel
 from sqlalchemy import Column, Integer, String, LargeBinary
 from sqlalchemy.orm import relationship
+from flaskr.models.paziente import PazienteModel
 
 class NutrizionistaModel(Base):
     __tablename__ = 'nutrizionista'

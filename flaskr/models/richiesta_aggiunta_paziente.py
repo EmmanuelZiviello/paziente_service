@@ -2,6 +2,8 @@ from datetime import datetime
 from flaskr.db import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, TIMESTAMP, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
+from flaskr.models.paziente import PazienteModel
+from flaskr.models.nutrizionista import NutrizionistaModel
 
 
 
@@ -41,26 +43,6 @@ class RichiestaAggiuntaPazienteModel(Base):
         self.data_richiesta = datetime.now()    
 
 
-    @classmethod
-    def find_by_id_paziente_and_id_nutrizionista(cls, id_paziente, id_nutrizionista, session) -> "RichiestaAggiuntaPazienteModel":
-        result = session.query(cls).filter_by(fk_paziente = id_paziente, 
-                                              fk_nutrizionista = id_nutrizionista).first()
-        return result
     
-    @classmethod
-    def find_by_id_paziente(cls, id_paziente, session) -> "RichiestaAggiuntaPazienteModel":
-        result = session.query(cls).filter_by(fk_paziente = id_paziente).all()
-        return result
 
-    
-    @classmethod
-    def find_new_requests(cls, id_paziente, session) -> "RichiestaAggiuntaPazienteModel":
-        result = session.query(cls).filter_by(fk_paziente = id_paziente, accettata = False).all()
-        return result
-    
-    @classmethod
-    def find_active_request(cls, id_paziente, session) -> "RichiestaAggiuntaPazienteModel":
-        result = session.query(cls).filter_by(fk_paziente = id_paziente, accettata = True).first()
-        session.close()
-        return result
     
