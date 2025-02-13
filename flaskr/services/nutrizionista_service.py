@@ -1,4 +1,5 @@
 from flaskr.repositories.nutrizionista_repository import NutrizionistaRepository
+from flaskr.repositories.paziente_repository import PazienteRepository
 from flaskr.models.paziente import PazienteModel
 from flaskr.db import get_session
 
@@ -8,7 +9,7 @@ class NutrizionistaService:
     def get_nutrizionista_by_paziente(paziente_id):
         session = get_session(role='patient')
         
-        paziente = session.get(PazienteModel, paziente_id)
+        paziente = PazienteRepository.find_by_id(paziente_id,session)
         if not paziente:
             session.close()
             return None

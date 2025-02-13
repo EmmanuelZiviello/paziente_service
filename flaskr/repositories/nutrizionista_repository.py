@@ -11,6 +11,11 @@ class NutrizionistaRepository:
         return session.query(NutrizionistaModel).filter_by(id_nutrizionista=id_nutrizionista).first()
 
     @staticmethod
+    def find_by_email(email, session=None):
+        session = session or get_session('patient')
+        return session.query(NutrizionistaModel).filter_by(email=email).first()
+
+    @staticmethod
     def add(paziente, session=None):
         session = session or get_session('patient')
         session.add(paziente)

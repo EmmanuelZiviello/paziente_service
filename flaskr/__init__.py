@@ -6,7 +6,7 @@ from marshmallow import ValidationError
 from sqlalchemy.exc import NoResultFound
 from smtplib import SMTPException
 from flask_cors import CORS
-from flaskr.db import set_DB_CONFIG
+from flaskr.db import set_DB_CONFIG,create_db
 
 from flaskr.ma import ma
 
@@ -42,9 +42,9 @@ def create_app():
     #if app.config['REDIS_PORT'] is None:
      #   app.config['REDIS_PORT'] = 6379
 
-   # with app.app_context():
+    with app.app_context():
     #    init_redis_connection_pool(app)
-     #   set_DB_CONFIG()
+        create_db()
 
     if __name__ != '__main__':
         gunicorn_logger = getLogger('gunicorn.error')
