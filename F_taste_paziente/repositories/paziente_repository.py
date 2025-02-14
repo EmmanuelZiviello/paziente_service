@@ -19,6 +19,7 @@ class PazienteRepository:
     def add(paziente, session=None):
         session = session or get_session('patient')
         session.add(paziente)
+        session.add(paziente.consensi_utente)#forse necessario dato che viene creato insieme al paziente
         session.commit()
 
     @staticmethod

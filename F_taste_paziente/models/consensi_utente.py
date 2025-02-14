@@ -13,7 +13,7 @@ class ConsensiUtenteModel(Base):
     management_user_consent = Column(Boolean, default = False)
     statistic_user_consent = Column(Boolean, default = False)
     trainingAI_user_consent= Column(Boolean, default = False)
-    fk_paziente = Column(String(10), 
+    fk_paziente = Column(String(7), 
                             ForeignKey("paziente.id_paziente", onupdate="CASCADE", ondelete="CASCADE"), 
                             nullable=False, 
                             unique = True)
