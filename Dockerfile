@@ -6,9 +6,9 @@ RUN python -m pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY ./setup.py ./setup.py
-COPY ./flaskr ./flaskr
+COPY ./F_taste_paziente ./F_taste_paziente
 RUN pip install -e .
 
 #RUN STAGE
 
-CMD ["/bin/bash", "-c", "flask --app flaskr run --host=0.0.0.0"]
+CMD ["/bin/bash", "-c", "flask --app F_taste_paziente run --host=0.0.0.0"]
