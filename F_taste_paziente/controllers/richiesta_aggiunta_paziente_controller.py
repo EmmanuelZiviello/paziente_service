@@ -15,7 +15,7 @@ deleteRichiestaRequestModel = paziente_ns.model('delete Richiesta Request Model'
     'fk_nutrizionista' : fields.String(required=True),
 }, strict=True)
 
-richiesta_schema_for_dump = RichiestaAggiuntaPazienteSchema
+richiesta_schema_for_dump = RichiestaAggiuntaPazienteSchema()
 
 class RichiestaAggiuntaPaziente(Resource):
 
@@ -23,10 +23,7 @@ class RichiestaAggiuntaPaziente(Resource):
     @paziente_required()
     def get(self):
         identity = get_jwt_identity()
-        richieste=RichiestaAggiuntaPazienteService.get_richieste_utente(identity)
-        if richieste:
-            return richiesta_schema_for_dump.dump(richieste,many=True),200
-        return  {"message": "Richieste non trovata"}, 404
+        return RichiestaAggiuntaPazienteService.get_richieste_utente(identity)
 
     @paziente_ns.expect(gestisciRichiestaRequestModel)
     @paziente_ns.doc('accetta/revoca la richiesta di aggiunta')

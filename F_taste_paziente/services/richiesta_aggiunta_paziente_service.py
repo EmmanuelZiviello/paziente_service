@@ -1,20 +1,24 @@
 from datetime import datetime
 from F_taste_paziente.db import get_session
 from F_taste_paziente.repositories.richiesta_aggiunta_paziente_repository import RichiestaAggiuntaPazienteRepository
-from F_taste_paziente.models.paziente import PazienteModel
-from F_taste_paziente.models.nutrizionista import NutrizionistaModel
 from F_taste_paziente.repositories.paziente_repository import PazienteRepository
 from F_taste_paziente.repositories.nutrizionista_repository import NutrizionistaRepository
+from F_taste_paziente.schemas.richiesta_aggiunta_paziente import RichiestaAggiuntaPazienteSchema
+
+richiesta_schema_for_dump = RichiestaAggiuntaPazienteSchema()
 
 class RichiestaAggiuntaPazienteService:
 
     @staticmethod
     def get_richieste_utente(paziente_id):
         session=get_session(role='patient')
-        try:
-            return RichiestaAggiuntaPazienteRepository.find_new_requests(paziente_id, session)
-        finally:
+        richieste=RichiestaAggiuntaPazienteRepository.find_new_requests(paziente_id, session)
+        if richieste is None:
              session.close()
+             return {"message":"Richieste non presenti nel database"},400
+        output_richiesta=richiesta_schema_for_dump.dump(richieste,many=True),200
+        session.close()
+        return output_richiesta
 
     @staticmethod
     def gestisci_richiesta(id_paziente, id_nutrizionista, conferma):
@@ -61,7 +65,7 @@ class RichiestaAggiuntaPazienteService:
     @staticmethod
     def revoca_condivisione(id_paziente):
             session=get_session(role='patient')
-            paziente = PazienteModel.find_by_id(id_paziente, session)
+            paziente = PazienteRepository.find_by_id(id_paziente, session)
             if paziente is None:
                  session.close()
                  return {"message":"Paziente non trovato"},404

@@ -8,7 +8,8 @@ class ConsensiUtenteRepository:
     @staticmethod
     def find_consensi_by_paziente_id(paziente_id, session=None):
         session = session or get_session('patient')
-        return ConsensiUtenteModel.find_consensi_of_paziente(paziente_id, session)
+        return session.query(ConsensiUtenteModel).filter_by(fk_paziente=paziente_id).first()
+
 
 
     @staticmethod
@@ -23,6 +24,7 @@ class ConsensiUtenteRepository:
         log_consensi = LOGConsensi(tipologia, id_paziente=id_paziente, valore=valore)
         if log_consensi:
             session.add(log_consensi)
+            session.commit()
 
 
     @staticmethod
@@ -38,5 +40,3 @@ class ConsensiUtenteRepository:
         except SQLAlchemyError:
             session.rollback()
             return None  
-        finally:
-            session.close()

@@ -44,7 +44,4 @@ class ConsensiUtenteModel(Base):
                 }
 
 
-    @classmethod
-    def find_consensi_of_paziente(cls, fk_paziente, session) -> "ConsensiUtenteModel":
-        result = session.query(cls).filter_by(fk_paziente = fk_paziente).first()
-        return result
+  

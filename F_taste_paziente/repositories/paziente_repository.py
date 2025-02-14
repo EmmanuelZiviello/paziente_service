@@ -41,8 +41,7 @@ class PazienteRepository:
         except SQLAlchemyError:
             session.rollback()
             return None  
-        finally:
-            session.close()
+       
 
     @staticmethod
     def delete_by_id(id_paziente, session=None):
@@ -57,8 +56,7 @@ class PazienteRepository:
         except SQLAlchemyError:
             session.rollback()
             return False
-        finally:
-            session.close()
+        
 
 
     @staticmethod
@@ -67,6 +65,7 @@ class PazienteRepository:
         paziente.fk_nutrizionista = id_nutrizionista
         paziente.nutrizionista =nutrizionista
         session.add(paziente)
+        session.commit()
         return paziente
     
 
@@ -76,6 +75,7 @@ class PazienteRepository:
         paziente.fk_nutrizionista =None
         paziente.nutrizionista =None
         session.add(paziente)
+        session.commit()
         return paziente
 
 

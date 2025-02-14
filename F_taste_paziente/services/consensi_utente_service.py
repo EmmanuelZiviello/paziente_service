@@ -1,6 +1,7 @@
 from F_taste_paziente.db import get_session
 from F_taste_paziente.repositories.consensi_utente_repository import ConsensiUtenteRepository
 from F_taste_paziente.repositories.paziente_repository import PazienteRepository
+from F_taste_paziente.schemas.consensi_utente import ConsensiUtenteSchema
 
 possible_requests = (
     "storage_from_Google_fit",
@@ -11,16 +12,19 @@ possible_requests = (
     "trainingAI_user_consent"
 )
 
+consensi_schema_for_dump=ConsensiUtenteSchema(exclude=['fk_paziente'])
+
 class ConsensiUtenteService:
 
     @staticmethod
     def get_consensi_utente(paziente_id):
         session = get_session(role='patient')
         consensi_utente = ConsensiUtenteRepository.find_consensi_by_paziente_id(paziente_id, session)
-        session.close()
         if not consensi_utente:
-            return None
-        return consensi_utente
+            return {"message":"Consensi non presenti nel database"},400
+        output_richiesta=consensi_schema_for_dump.dump(consensi_utente),200
+        session.close()
+        return output_richiesta
 
     @staticmethod
     def update_consensi_utente(paziente_id, json_data):

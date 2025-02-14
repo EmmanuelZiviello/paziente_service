@@ -21,12 +21,7 @@ class ConsensiUtente(Resource):
     @paziente_required()
     def get(self):
         paziente_id = get_jwt_identity()
-        consensi_utente = ConsensiUtenteService.get_consensi_utente(paziente_id)
-
-        if consensi_utente is None:
-            return {'message': 'consensi utente non presenti nel db'}, 404
-        
-        return ConsensiUtenteSchema(exclude=['fk_paziente']).dump(consensi_utente), 200
+        return ConsensiUtenteService.get_consensi_utente(paziente_id)
 
     @paziente_ns.doc('modifica i consensi utente')
     @paziente_required()
