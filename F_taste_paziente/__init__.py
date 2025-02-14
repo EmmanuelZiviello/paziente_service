@@ -12,7 +12,7 @@ from F_taste_paziente.ma import ma
 
 from F_taste_paziente.namespaces import paziente_ns
 from F_taste_paziente.controllers.richiesta_aggiunta_paziente_controller import RichiestaAggiuntaPaziente
-from F_taste_paziente.controllers.paziente_controller import Paziente
+from F_taste_paziente.controllers.paziente_controller import Paziente,PazienteLogin#login da levare
 from F_taste_paziente.controllers.consensi_utente_controller import ConsensiUtente
 from F_taste_paziente.controllers.nutrizionista_controller import Nutrizionista
 
@@ -129,6 +129,7 @@ def create_app():
     paziente_ns.add_resource(ConsensiUtente, '/consensi_utente')
     paziente_ns.add_resource(RichiestaAggiuntaPaziente, '/richiesta_aggiunta_paziente')
     paziente_ns.add_resource(Nutrizionista, '/nutrizionista')
+    paziente_ns.add_resource(PazienteLogin,'/login')#login da levare
    
     
     

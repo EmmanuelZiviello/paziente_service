@@ -5,7 +5,9 @@ from F_taste_paziente.schemas.paziente import PazienteSchema
 
 #import da levare, sono per la registrazione
 from F_taste_paziente.utils.id_generation import genera_id_valido
-from F_taste_paziente.utils.hashing_pw import hash_pwd
+from F_taste_paziente.utils.hashing_pw import hash_pwd,check_pwd
+from F_taste_paziente.utils.jwt_token_factory import JWTTokenFactory
+jwt_factory=JWTTokenFactory()
 #
 
 paziente_schema_for_dump = PazienteSchema(only=['id_paziente', 'sesso', 'data_nascita'])
@@ -106,3 +108,24 @@ class PazienteService:
         session.close()
         print(output_richiesta)#debug del valore ,
         return output_richiesta
+    
+    ###da levare insieme ai metodi check_pwd e jwt factory
+    @staticmethod
+    def login_paziente(email_paziente, password):
+        session = get_session('patient')
+        paziente = PazienteRepository.find_by_email(email_paziente,session)
+        
+        if paziente is None:
+            session.close()
+            return {"esito_login": "Paziente non trovato"}, 401
+
+        if check_pwd(password, paziente.password):
+            session.close()
+            return {
+                "esito_login": "successo",
+                "access_token": jwt_factory.create_access_token(paziente.id_paziente, 'patient'),
+                "refresh_token": jwt_factory.create_refresh_token(paziente.id_paziente, 'patient'),
+                "id_paziente": paziente.id_paziente
+            }, 200
+        session.close()
+        return {"esito_login": "password errata"}, 401
