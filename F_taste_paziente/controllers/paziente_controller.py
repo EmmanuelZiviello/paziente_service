@@ -27,6 +27,14 @@ paziente_model_for_delete = paziente_ns.model('paziente_model_for_delete', {
 }, strict = True)
 
 
+######da levare, solo per registrare nel db i pazienti
+signup_paziente = paziente_ns.model('singup_paziente', {
+    'password': fields.String('password of the paziente'),
+    'email': fields.String('mail of the paziente'),
+    'data_nascita': fields.String("format yyyy-MM-dd"),
+    'sesso': fields.Boolean('true = maschio , false=femmina')
+}, strict=True)
+
 paziente_schema = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita'])
 paziente_schema_post_return = PazienteSchema(only=['id_paziente'])
 paziente_schema_put = PazienteSchema(only=['id_paziente','password'])
@@ -54,10 +62,7 @@ class Paziente(Resource):
     @paziente_ns.doc('recupera paziente')
     def get(self):
         id_paziente = get_jwt_identity()
-        paziente = PazienteService.get_paziente_by_id(id_paziente)
-        if paziente:
-            return paziente_schema_for_dump.dump(paziente), 200
-        return {"message": "Paziente non trovato"}, 404
+        return PazienteService.get_paziente_by_id(id_paziente)
 
     @paziente_required()
     @paziente_ns.expect(paziente_model_for_delete)
@@ -68,4 +73,12 @@ class Paziente(Resource):
             return {"message": "Password richiesta"}, 400
         id_paziente = get_jwt_identity()
         return PazienteService.delete_paziente(id_paziente, paziente_json['password'])
+    
+    ###########da levare, è solo per registrare su questo db i pazienti
+    @paziente_ns.expect(signup_paziente)
+    @paziente_ns.doc('signup paziente')
+    def post(self):
+        s_paziente = request.get_json()        
+        # Chiamata al servizio di registrazione del paziente
+        return PazienteService.register_paziente(s_paziente)
 
