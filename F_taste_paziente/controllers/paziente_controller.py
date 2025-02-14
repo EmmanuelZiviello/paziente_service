@@ -48,7 +48,7 @@ class Paziente(Resource):
 
    
 
-    @paziente_required()
+   # @paziente_required()
     @paziente_ns.expect(update_patient_data)
     @paziente_ns.doc('Cambio password, sesso e data di nascita del paziente.')
     def put(self):
@@ -58,13 +58,13 @@ class Paziente(Resource):
         id_paziente = get_jwt_identity()
         return PazienteService.update_paziente_data(id_paziente, updated_data)
 
-    @paziente_required()
+   # @paziente_required()
     @paziente_ns.doc('recupera paziente')
     def get(self):
         id_paziente = get_jwt_identity()
         return PazienteService.get_paziente_by_id(id_paziente)
 
-    @paziente_required()
+    #@paziente_required()
     @paziente_ns.expect(paziente_model_for_delete)
     @paziente_ns.doc('elimina paziente')
     def delete(self):
