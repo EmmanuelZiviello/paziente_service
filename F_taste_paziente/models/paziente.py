@@ -15,17 +15,6 @@ class PazienteModel(Base):
     sesso = Column(Boolean)
     fk_nutrizionista = Column(Integer, ForeignKey('nutrizionista.id_nutrizionista', onupdate="CASCADE"), nullable=True)
     nutrizionista = relationship("NutrizionistaModel", back_populates='pazienti', lazy=True)
-   # misurazioni_medico = relationship("MisurazioneMedicoModel", back_populates='paziente', lazy=True, cascade='delete')
-    #dieta_paziente = relationship("DietaModel",  back_populates='paziente' , lazy=True, cascade='delete')
-    
-    # Relazione verso la tabella di transizione per le patologie
-    patologie = relationship('PatologiaModel', secondary='patologia_paziente', backref=backref('pazienti', lazy=True))
-    # Relazione verso la tabella di tranzizione per le allergie
-    allergie = relationship('AllergiaModel', secondary='allergia_paziente', backref=backref('pazienti', lazy=True))
-    # Relazione verso la tabella di transizione per le intolleranze
-    intolleranze = relationship('IntolleranzaModel', secondary='intolleranza_paziente', backref=backref('pazienti', lazy=True))
-    
-   # misurazioni = relationship("MisurazioneModel", back_populates='paziente', lazy=True, cascade='delete')
     consensi_utente = relationship("ConsensiUtenteModel", back_populates='paziente', lazy=True, cascade='delete', uselist=False)
     richieste_aggiunta_paziente = relationship("RichiestaAggiuntaPazienteModel", back_populates='paziente',lazy=True, cascade='all, delete')
     richieste_revocate = relationship("RichiestaRevocataModel", lazy=True, cascade='all, delete-orphan')
@@ -41,8 +30,7 @@ class PazienteModel(Base):
 
 
     def __repr__(self):
-        patologie_str = ', '.join([patologia.patologia for patologia in self.patologie])
-        return "PazienteModel(email=%s, id_paziente=%s, password=%s, data_nascita=%s, sesso=%s, patologie=[%s])" % ( self.email, self.id_paziente, self.password, self.data_nascita, self.sesso, patologie_str)
+        return "PazienteModel(email=%s, id_paziente=%s, password=%s, data_nascita=%s, sesso=%s, patologie=[%s])" % ( self.email, self.id_paziente, self.password, self.data_nascita, self.sesso)
     
     def __json__(self):
         return { 'id_paziente': self.id_paziente, 'data_nascita': self.data_nascita, 'sesso': self.sesso }

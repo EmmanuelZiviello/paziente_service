@@ -1,4 +1,5 @@
 import os
+import threading
 from flask import Flask, request
 from flask_jwt_extended import JWTManager
 from flask_restx import Api, ValidationError as ValidationErr
@@ -6,13 +7,14 @@ from marshmallow import ValidationError
 from sqlalchemy.exc import NoResultFound
 from smtplib import SMTPException
 from flask_cors import CORS
+from F_taste_paziente.kafka.kafka_consumer import consume
 from F_taste_paziente.db import set_DB_CONFIG,create_db
 
 from F_taste_paziente.ma import ma
 
 from F_taste_paziente.namespaces import paziente_ns
 from F_taste_paziente.controllers.richiesta_aggiunta_paziente_controller import RichiestaAggiuntaPaziente
-from F_taste_paziente.controllers.paziente_controller import Paziente
+from F_taste_paziente.controllers.paziente_controller import Paziente,InformativaPaziente
 from F_taste_paziente.controllers.consensi_utente_controller import ConsensiUtente
 from F_taste_paziente.controllers.nutrizionista_controller import Nutrizionista
 
@@ -26,6 +28,9 @@ from F_taste_paziente.utils.jwt_custom_decorators import NoAuthorizationExceptio
 
 from logging import getLogger
 
+def start_kafka_consumer():
+    thread = threading.Thread(target=consume, daemon=True)
+    thread.start()
 
 def create_app():
     # create and configure the app
@@ -129,6 +134,7 @@ def create_app():
     paziente_ns.add_resource(ConsensiUtente, '/consensi_utente')
     paziente_ns.add_resource(RichiestaAggiuntaPaziente, '/richiesta_aggiunta_paziente')
     paziente_ns.add_resource(Nutrizionista, '/nutrizionista')
+    paziente_ns.add_resource(InformativaPaziente,'/informativa')
    
     
     
@@ -144,4 +150,11 @@ def create_app():
     def health_check():
         return {'message': 'API paziente è online'}, 200
     
+    # Avvia il Consumer Kafka all'avvio del servizio paziente
+    start_kafka_consumer()
+
     return app
+
+
+
+

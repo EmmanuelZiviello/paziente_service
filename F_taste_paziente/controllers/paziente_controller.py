@@ -67,6 +67,13 @@ class Paziente(Resource):
         id_paziente = get_jwt_identity()
         return PazienteService.delete_paziente(id_paziente, paziente_json['password'])
     
+
+class InformativaPaziente(Resource):
+        @paziente_ns.doc(description="informativa privacy di Aired e del nutrizionista, se specificato", 
+                     params = {'email_nutrizionista': 'optional'})
+        def get(self):
+            return PazienteService.visualizza_informativa()
+    
    
     
 
