@@ -2,7 +2,7 @@ import os
 from kafka import KafkaConsumer
 import json
 from F_taste_paziente.services.paziente_service import PazienteService
-from kafka_producer import send_kafka_message
+from F_taste_paziente.kafka.kafka_producer import send_kafka_message
 # Percorso assoluto alla cartella dei certificati
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Ottiene la cartella dove si trova questo script
 CERTS_DIR = os.path.join(BASE_DIR, "..", "certs")  # Risale di un livello e accede alla cartella "certs"
