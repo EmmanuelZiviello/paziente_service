@@ -28,8 +28,8 @@ from F_taste_paziente.utils.jwt_custom_decorators import NoAuthorizationExceptio
 
 from logging import getLogger
 
-def start_kafka_consumer():
-    thread = threading.Thread(target=consume, daemon=True)
+def start_kafka_consumer(app):
+    thread = threading.Thread(target=consume,args=(app,) ,daemon=True)
     thread.start()
 
 def create_app():
@@ -151,7 +151,7 @@ def create_app():
         return {'message': 'API paziente è online'}, 200
     
     # Avvia il Consumer Kafka all'avvio del servizio paziente
-    start_kafka_consumer()
+    start_kafka_consumer(app)
 
     return app
 

@@ -32,6 +32,7 @@ consumer = KafkaConsumer(
 
 def consume():
     #Ascolta Kafka e chiama il Service per la registrazione
+    app=current_app.get_current_object()
     with current_app.app_context():
         for message in consumer:
             data = message.value
