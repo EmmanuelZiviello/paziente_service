@@ -4,17 +4,42 @@ from F_taste_paziente.db import get_session
 from F_taste_paziente.schemas.paziente import PazienteSchema
 from F_taste_paziente.repositories.informativa_repository import InformativaRepository
 from F_taste_paziente.utils.id_generation import genera_id_valido
-from F_taste_paziente.utils.hashing_password import hash_pwd
+from F_taste_paziente.utils.hashing_password import hash_pwd,check_pwd
+from F_taste_paziente.utils.jwt_token_factory import JWTTokenFactory
 
 paziente_schema = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita'])
 paziente_schema_for_load = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita', 'id_paziente'])
 paziente_schema_for_dump = PazienteSchema(only=['id_paziente', 'sesso', 'data_nascita'])
 paziente_schema_post_return = PazienteSchema(only=['id_paziente'])
 
+jwt_factory = JWTTokenFactory()
 
 class PazienteService:
 
     
+    @staticmethod
+    def login_paziente(s_paziente):
+        if "email" not in s_paziente or "password" not in s_paziente:
+            return {"esito_login": "Dati mancanti"}, 400
+        session=get_session('patient')
+        email_paziente = s_paziente["email"]
+        password = s_paziente["password"]
+        paziente=PazienteRepository.find_by_email(email_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"esito_login": "Paziente non trovato"}, 401
+        if check_pwd(password, paziente.password):
+            session.close()
+            return {
+                "esito_login": "successo",
+                "access_token": jwt_factory.create_access_token(paziente.id_paziente, 'patient'),
+                "refresh_token": jwt_factory.create_refresh_token(paziente.id_paziente, 'patient'),
+                "id_paziente": paziente.id_paziente
+            }, 200
+
+        session.close()
+        return {"esito_login": "password errata"}, 401
+
     @staticmethod
     def register_paziente(s_paziente):
         session = get_session('patient')

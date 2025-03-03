@@ -17,6 +17,7 @@ PATIENT_REGISTRATION_FAILED_TOPIC = "patient.registration.failed"
 
 consumer = KafkaConsumer(
     'patient.registration.request',
+    'patient.login.request',
     bootstrap_servers=KAFKA_BROKER_URL,
     client_id="patient_consumer",
     group_id="patient_service",
@@ -31,8 +32,14 @@ consumer = KafkaConsumer(
 def consume():
     #Ascolta Kafka e chiama il Service per la registrazione
     for message in consumer:
-        s_paziente = message.value
-        response, status = PazienteService.register_paziente(s_paziente)  # Chiama il Service
+        data = message.value
+        topic=message.topic
+        if topic ==  "patient.registration.request":
+            response, status = PazienteService.register_paziente(data)  # Chiama il Service
+            topic_producer = "patient.registration.success" if status == 201 else "patient.registration.failed"
+            send_kafka_message(topic_producer, response)
         
-        topic = "patient.registration.success" if status == 201 else "patient.registration.failed"
-        send_kafka_message(topic, response)
+        elif topic == "patient.login.request":
+            response,status=PazienteService.login_paziente(data)
+            topic_producer="patient.login.success" if status == 200 else "patient.login.failed"
+            send_kafka_message(topic_producer,response)
