@@ -1,4 +1,3 @@
-from flask import current_app
 import os
 from kafka import KafkaConsumer
 import json
@@ -30,10 +29,9 @@ consumer = KafkaConsumer(
     value_deserializer=lambda x: json.loads(x.decode("utf-8"))
 )
 
-def consume():
+def consume(app):
     #Ascolta Kafka e chiama il Service per la registrazione
-    app=current_app.get_current_object()
-    with current_app.app_context():
+    with app.app_context():
         for message in consumer:
             data = message.value
             topic=message.topic
