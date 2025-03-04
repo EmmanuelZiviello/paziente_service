@@ -87,10 +87,10 @@ class PazienteService:
             paziente.password=hash_pwd(new_password)
             PazienteRepository.add(paziente,session)
             session.close()
-            return {"message":"Password aggiornata con successo"},200
+            return {"message":"Password aggiornata con successo"}, 200
         else:
             session.close()
-            return {"message":"Vecchia password errata"},400
+            return {"message":"Vecchia password errata"}, 400
 
 
     @staticmethod
