@@ -70,6 +70,27 @@ class PazienteService:
         session.close()
         
         return output_richiesta
+    
+    @staticmethod
+    def cambio_pw(s_paziente):
+        if "password" not in s_paziente or "new_password" not in s_paziente or "id_paziente" not in s_paziente:
+            return {"esito_cambiopw": "Dati mancanti"}, 400
+        session = get_session('patient')
+        password=s_paziente["password"]
+        new_password=s_paziente["new_password"]
+        id_paziente=s_paziente["id_paziente"]
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"esito_cambiopw": "Paziente non trovato"}, 401
+        if check_pwd(password,paziente.password):
+            paziente.password=hash_pwd(new_password)
+            PazienteRepository.add(paziente,session)
+            session.close()
+            return {"message":"Password aggiornata con successo"},200
+        session.close()
+        return {"message":"Vecchia password errata"},400
+
 
     @staticmethod
     def update_paziente_data(id_paziente, updated_data):

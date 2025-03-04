@@ -18,6 +18,7 @@ PATIENT_REGISTRATION_FAILED_TOPIC = "patient.registration.failed"
 consumer = KafkaConsumer(
     'patient.registration.request',
     'patient.login.request',
+    'patient.cambiopw.request',
     bootstrap_servers=KAFKA_BROKER_URL,
     client_id="patient_consumer",
     group_id="patient_service",
@@ -43,4 +44,9 @@ def consume(app):
             elif topic == "patient.login.request":
                 response,status=PazienteService.login_paziente(data)
                 topic_producer="patient.login.success" if status == 200 else "patient.login.failed"
+                send_kafka_message(topic_producer,response)
+            
+            elif topic == "patient.cambiopw.request":
+                response,status=PazienteService.cambio_pw(data)
+                topic_producer="patient.cambiopw.success" if status == 200 else "patient.cambiopw.failed"
                 send_kafka_message(topic_producer,response)
