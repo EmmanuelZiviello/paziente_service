@@ -88,8 +88,9 @@ class PazienteService:
             PazienteRepository.add(paziente,session)
             session.close()
             return {"message":"Password aggiornata con successo"},200
-        session.close()
-        return {"message":"Vecchia password errata"},400
+        else:
+            session.close()
+            return {"message":"Vecchia password errata"},400
 
 
     @staticmethod
