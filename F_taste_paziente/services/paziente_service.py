@@ -6,6 +6,10 @@ from F_taste_paziente.repositories.informativa_repository import InformativaRepo
 from F_taste_paziente.utils.id_generation import genera_id_valido
 from F_taste_paziente.utils.hashing_password import hash_pwd,check_pwd
 from F_taste_paziente.utils.jwt_token_factory import JWTTokenFactory
+import F_taste_paziente.utils.credentials as credentials
+from F_taste_paziente.utils.jwt_functions import ACCESS_EXPIRES
+from flask_jwt_extended import create_access_token
+from F_taste_paziente.utils.encrypting_id import encrypt_id
 
 paziente_schema = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita'])
 paziente_schema_for_load = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita', 'id_paziente'])
@@ -91,6 +95,30 @@ class PazienteService:
         else:
             session.close()
             return {"message":"Vecchia password errata"}, 400
+
+    @staticmethod
+    def recupero_pw(s_paziente):
+        if "id_paziente" not in s_paziente:
+            return {"esito recuperopw":"Dati mancanti"}, 400
+        session=get_session('patient')
+        id_paziente=s_paziente["id_paziente"]
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"esito_cambiopw": "Paziente non trovato"}, 401
+        session.close()
+        token=create_access_token(credentials.reset_password,ACCESS_EXPIRES)
+        link=credentials.endpoint + "/password_reset?jwt=" + token + "&id=" + encrypt_id(id_paziente)
+        # **Invia un messaggio Kafka al servizio Email**
+        '''
+        email_message = {
+            "email": paziente.email,
+            "subject": "Recupero Password",
+            "body": f"Clicca sul link per reimpostare la password: {link}"
+        }
+        send_kafka_message("email.send.request", email_message)
+        '''
+        return {"esito_cambiopw":"Email di recupero password inviata con successo"}, 200
 
 
     @staticmethod
