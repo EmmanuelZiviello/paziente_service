@@ -9,9 +9,7 @@ CERTS_DIR = os.path.join(BASE_DIR, "..", "certs")  # Risale di un livello e acce
 
 # Configurazione Kafka su Aiven e sui topic
 KAFKA_BROKER_URL = "kafka-ftaste-kafka-ftaste.j.aivencloud.com:11837"
-PATIENT_REGISTRATION_REQUEST_TOPIC = "patient.registration.request"
-PATIENT_REGISTRATION_SUCCESS_TOPIC = "patient.registration.success"
-PATIENT_REGISTRATION_FAILED_TOPIC = "patient.registration.failed"
+
 
 
 
@@ -20,6 +18,8 @@ consumer = KafkaConsumer(
     'patient.login.request',
     'patient.cambiopw.request',
     'patient.recuperopw.request',
+    'patient.delete.request',
+    'patient.getAll.request',
     bootstrap_servers=KAFKA_BROKER_URL,
     client_id="patient_consumer",
     group_id="patient_service",
@@ -55,4 +55,14 @@ def consume(app):
             elif topic == "patient.recuperopw.request":
                 response,status=PazienteService.recupero_pw(data)
                 topic_producer="patient.recuperopw.success" if status == 200 else "patient.recuperopw.failed"
+                send_kafka_message(topic_producer,response)
+
+            elif topic == "patient.delete.request":
+                response,status=PazienteService.delete(data)
+                topic_producer="patient.delete.success" if status == 200 else "patient.delete.failed"
+                send_kafka_message(topic_producer,response)
+            
+            elif topic == "patient.getAll.request":
+                response,status=PazienteService.getAll()
+                topic_producer="patient.getAll.success" if status == 200 else "patient.getAll.failed"
                 send_kafka_message(topic_producer,response)

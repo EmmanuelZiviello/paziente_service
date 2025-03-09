@@ -15,6 +15,7 @@ paziente_schema = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nas
 paziente_schema_for_load = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita', 'id_paziente'])
 paziente_schema_for_dump = PazienteSchema(only=['id_paziente', 'sesso', 'data_nascita'])
 paziente_schema_post_return = PazienteSchema(only=['id_paziente'])
+pazienti_schema = PazienteSchema(many=True, only=['id_paziente'])
 
 jwt_factory = JWTTokenFactory()
 
@@ -139,6 +140,30 @@ class PazienteService:
         finally:
             session.close()
 
+    @staticmethod
+    def delete(s_paziente):
+        if "id_paziente" not in s_paziente:
+            return {"esito delete":"Dati mancanti"}, 400
+        session=get_session('admin')
+        id_paziente=s_paziente["id_paziente"]
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"esito delete": "Paziente non trovato"}, 404
+        PazienteRepository.delete(paziente,session)
+        session.close()
+        return {"message":"Paziente eliminato con successo"}, 200
+    
+    @staticmethod
+    def getAll():
+        session=get_session('admin')
+        pazienti_data=PazienteRepository.get_all_pazienti(session)
+        output_richiesta={"pazienti": pazienti_schema.dump(pazienti_data)}, 200
+        session.close()
+        return output_richiesta
+
+
+    #non credo vada bene perchè non controlla la password
     @staticmethod
     def delete_paziente(id_paziente):
         session = get_session('patient')

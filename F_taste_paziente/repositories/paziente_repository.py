@@ -27,6 +27,11 @@ class PazienteRepository:
         session = session or get_session('patient')
         session.delete(paziente)
         session.commit()
+    
+    @staticmethod
+    def get_all_pazienti(session=None):
+        session = session or get_session('admin')
+        return session.query(PazienteModel).all()
 
 
     @staticmethod
