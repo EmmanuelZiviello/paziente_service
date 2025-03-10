@@ -20,6 +20,7 @@ consumer = KafkaConsumer(
     'patient.recuperopw.request',
     'patient.delete.request',
     'patient.getAll.request',
+    'patient.addDietitian.request',
     bootstrap_servers=KAFKA_BROKER_URL,
     client_id="patient_consumer",
     group_id="patient_service",
@@ -66,3 +67,9 @@ def consume(app):
                 response,status=PazienteService.getAll()
                 topic_producer="patient.getAll.success" if status == 200 else "patient.getAll.failed"
                 send_kafka_message(topic_producer,response)
+            
+            elif topic == "patient.addDietitian.request":
+                response,status=PazienteService.add_dietitian(data)
+                topic_producer="patient.addDietitian.success" if status == 200 else "patient.addDietitian.failed"
+                send_kafka_message(topic_producer,response)
+            

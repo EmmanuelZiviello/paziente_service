@@ -8,7 +8,6 @@ class NutrizionistaModel(Base):
     id_nutrizionista = Column(Integer, primary_key=True)
     nome = Column(String(45), nullable=False)
     cognome = Column(String(45), nullable=False)
-    pazienti = relationship("PazienteModel", back_populates='nutrizionista', lazy=True)
     richieste_aggiunta_paziente = relationship("RichiestaAggiuntaPazienteModel",back_populates='nutrizionista', lazy=True, cascade='all, delete-orphan')
     
     def __init__(self, nome, cognome):

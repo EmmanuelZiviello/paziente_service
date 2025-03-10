@@ -9,12 +9,11 @@ class PazienteSchema(ma.SQLAlchemyAutoSchema):
         model = PazienteModel
         load_instance = True
         # sqla_session = db.session
-        include_fk = True
 
     email = fields.Email(required=True)
     data_nascita = fields.Date(required=False)
     sesso = fields.Boolean(required=False)
-    fk_nutrizionista = fields.Integer(required=True)
+    id_nutrizionista = fields.Integer(required=False)
 
     @validates('password')
     def is_a_strong_password(self, value):

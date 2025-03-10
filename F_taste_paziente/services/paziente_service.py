@@ -162,6 +162,29 @@ class PazienteService:
         session.close()
         return output_richiesta
 
+    @staticmethod
+    def add_dietitian(s_paziente):
+        if "id_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente:
+            return {"esito add_Dietitian":"Dati mancanti"}, 400
+        id_paziente=s_paziente["id_paziente"]
+        id_nutrizionista=s_paziente["id_nutrizionista"]
+        session=get_session('dietitian')
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"message": "Paziente non presente nel database"}, 404
+        # Controlliamo se il paziente è già seguito
+        if paziente.id_nutrizionista is not None:
+            if paziente.id_nutrizionista == id_nutrizionista:
+                session.close()
+                return {"message": "segui già questo paziente"}, 304
+            else:
+                session.close()
+                return {"message": "Paziente seguito da un altro nutrizionista"}, 403
+        
+        #manca del codice di comunicazione kafka con un servizio dedicato alle richieste
+        return {"message": "richiesta aggiunta a propria lista pazienti inviata con successo"}, 200
+
 
     #non credo vada bene perchè non controlla la password
     @staticmethod
