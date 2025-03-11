@@ -188,7 +188,13 @@ class PazienteService:
         message={"id_paziente":id_paziente,"id_nutrizionista":id_nutrizionista}
         send_kafka_message("richieste.add.request",message)
         response = wait_for_kafka_response(["richieste.add.success", "richieste.add.failed"])
-        return response
+        if response.get("status_code") == "200":
+         return {"message": "richiesta aggiunta a propria lista pazienti inviata con successo"}, 200   
+        elif response.get("status_code") == "400":
+            return {"esito add_richiesta":"Dati mancanti"}, 400
+        elif response.get("status_code") == "403":
+            return {"message": "richiesta già presente"}, 403
+        
         #return {"message": "richiesta aggiunta a propria lista pazienti inviata con successo"}, 200
 
 
