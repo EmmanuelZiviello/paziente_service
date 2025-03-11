@@ -10,6 +10,8 @@ import F_taste_paziente.utils.credentials as credentials
 from F_taste_paziente.utils.jwt_functions import ACCESS_EXPIRES
 from flask_jwt_extended import create_access_token
 from F_taste_paziente.utils.encrypting_id import encrypt_id
+from F_taste_paziente.kafka.kafka_producer import send_kafka_message
+from F_taste_paziente.utils.kafka_helpers import wait_for_kafka_response
 
 paziente_schema = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita'])
 paziente_schema_for_load = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita', 'id_paziente'])
@@ -182,8 +184,12 @@ class PazienteService:
                 session.close()
                 return {"message": "Paziente seguito da un altro nutrizionista"}, 403
         
-        #manca del codice di comunicazione kafka con un servizio dedicato alle richieste
-        return {"message": "richiesta aggiunta a propria lista pazienti inviata con successo"}, 200
+        session.close()
+        message={"id_paziente":id_paziente,"id_nutrizionista":id_nutrizionista}
+        send_kafka_message("richieste.add.request",message)
+        response = wait_for_kafka_response(["richieste.add.success", "richieste.add.failed"])
+        return response
+        #return {"message": "richiesta aggiunta a propria lista pazienti inviata con successo"}, 200
 
 
     #non credo vada bene perchè non controlla la password
