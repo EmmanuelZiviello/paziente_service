@@ -233,6 +233,47 @@ class PazienteService:
             return {"status_code":"400"}, 400
         elif response.get("status_code") == "404":
             return {"status_code":"404"}, 404
+        
+
+    @staticmethod
+    def remove_dietitian(s_paziente):
+        if "id_paziente" not in s_paziente:
+                return {"status_code":"400"}, 400
+                #return {"esito remove_Dietitian":"Dati mancanti"}, 400
+        id_paziente=s_paziente["id_paziente"]
+        session=get_session('patient')
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"status_code":"404"}, 404
+            #return {"message": "Paziente non presente nel database"}, 404
+        id_nutrizionista=paziente.id_nutrizionista
+        if id_nutrizionista is None:
+            session.close()
+            return {"status_code":"200"}, 200
+        #riceve l'email del nutrizionista salvato nel paziente
+        message={"id_nutrizionista":id_nutrizionista}
+        send_kafka_message("dietitian.email.request",message)
+        response = wait_for_kafka_response(["dietitian.email.success", "dietitian.email.failed"])
+        #controllo sul valore in response per capire se si può aggiornare il db
+        if response is None:
+            session.close()
+            return {"status_code":"500"}, 500
+            #return {"message": "Errore nella comunicazione con Kafka"}, 500
+        if response.get("status_code") == "200":
+            #aggiungere controllo sull'email_nutrizionista in response
+            email_nutrizionista = response.get("email_nutrizionista")
+            if email_nutrizionista:
+                PazienteRepository.update_nutrizionista(paziente,None,session)
+                session.close()
+                return {"status_code": "200", "email_nutrizionista": email_nutrizionista}, 200
+                #return {"message": "nutrizionista rimosso dal paziente con successo"}, 200
+        elif response.get("status_code") == "400":
+            session.close()
+            return {"status_code":"400"}, 400
+        elif response.get("status_code") == "404":
+            session.close()
+            return {"status_code":"404"}, 404
 
 
     #non credo vada bene perchè non controlla la password

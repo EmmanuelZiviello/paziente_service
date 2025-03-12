@@ -15,6 +15,8 @@ consumer_response = KafkaConsumer(
     'richieste.add.failed',
     'dietitian.exist.success',
     'dietitian.exist.failed',
+    'dietitian.email.success',
+    'dietitian.email.failed',
     bootstrap_servers=KAFKA_BROKER_URL,
     client_id="patient_consumer",
     group_id="patient_service_response",
