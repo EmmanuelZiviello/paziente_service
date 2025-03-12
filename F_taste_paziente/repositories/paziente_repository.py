@@ -32,6 +32,11 @@ class PazienteRepository:
     def get_all_pazienti(session=None):
         session = session or get_session('admin')
         return session.query(PazienteModel).all()
+    
+    @staticmethod
+    def get_pazienti_from_id_nutrizionista(id_nutrizionista, session=None):
+        session = session or get_session('patient')
+        return session.query(PazienteModel).filter_by(id_nutrizionista=id_nutrizionista).all()
 
 
     @staticmethod

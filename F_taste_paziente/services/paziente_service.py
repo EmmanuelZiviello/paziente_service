@@ -163,6 +163,17 @@ class PazienteService:
         output_richiesta={"pazienti": pazienti_schema.dump(pazienti_data)}, 200
         session.close()
         return output_richiesta
+    
+    @staticmethod
+    def get_pazienti(s_paziente):
+        if "id_nutrizionista" not in s_paziente:
+            return {"esito get_pazienti":"Dati mancanti"},400
+        session=get_session('patient')
+        id_nutrizionista=s_paziente["id_nutrizionista"]
+        pazienti_data=PazienteRepository.get_pazienti_from_id_nutrizionista(id_nutrizionista,session)
+        output_richiesta={"pazienti": pazienti_schema.dump(pazienti_data)}, 200
+        session.close()
+        return output_richiesta
 
     @staticmethod
     def add_dietitian(s_paziente):
