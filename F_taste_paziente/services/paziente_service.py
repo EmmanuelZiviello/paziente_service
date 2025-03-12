@@ -201,6 +201,39 @@ class PazienteService:
         
         #return {"message": "richiesta aggiunta a propria lista pazienti inviata con successo"}, 200
 
+    @staticmethod
+    def update_dietitian(s_paziente):
+        if "id_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente:
+                return {"status_code":"400"}, 400
+                #return {"esito update_Dietitian":"Dati mancanti"}, 400
+        id_paziente=s_paziente["id_paziente"]
+        id_nutrizionista=s_paziente["id_nutrizionista"]
+        session=get_session('patient')
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"status_code":"404"}, 404
+            #return {"message": "Paziente non presente nel database"}, 404
+
+        #controlla che quel nutrizionista esista veramente
+        message={"id_nutrizionista":id_nutrizionista}
+        send_kafka_message("dietitian.exist.request",message)
+        response = wait_for_kafka_response(["dietitian.exist.success", "dietitian.exist.failed"])
+        #controllo sul valore in response per capire se si può aggiornare il db
+        if response is None:
+            session.close()
+            return {"status_code":"500"}, 500
+            #return {"message": "Errore nella comunicazione con Kafka"}, 500
+        if response.get("status_code") == "200":
+            PazienteRepository.update_nutrizionista(paziente,id_nutrizionista,session)
+            session.close()
+            return {"status_code":"200"}, 200
+            #return {"message": "nutrizionista aggiornato con successo"}, 200
+        elif response.get("status_code") == "400":
+            return {"status_code":"400"}, 400
+        elif response.get("status_code") == "404":
+            return {"status_code":"404"}, 404
+
 
     #non credo vada bene perchè non controlla la password
     @staticmethod

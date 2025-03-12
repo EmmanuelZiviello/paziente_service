@@ -63,8 +63,14 @@ class PazienteRepository:
             session.rollback()
             return False
         
+    @staticmethod
+    def update_nutrizionista(paziente,id_nutrizionista,session=None):
+        session=session or get_session('patient')
+        paziente.id_nutrizionista=id_nutrizionista
+        session.add(paziente)
+        session.commit()
 
-
+    #da levare ,meglio update nutrizionista
     @staticmethod
     def aggiorna_nutrizionista(paziente, id_nutrizionista, nutrizionista,session=None):
         session=session or get_session('patient')

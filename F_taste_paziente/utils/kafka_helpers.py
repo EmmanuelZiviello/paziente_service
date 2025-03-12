@@ -13,6 +13,8 @@ KAFKA_BROKER_URL = "kafka-ftaste-kafka-ftaste.j.aivencloud.com:11837"
 consumer_response = KafkaConsumer(
     'richieste.add.success',
     'richieste.add.failed',
+    'dietitian.exist.success',
+    'dietitian.exist.failed',
     bootstrap_servers=KAFKA_BROKER_URL,
     client_id="patient_consumer",
     group_id="patient_service_response",
