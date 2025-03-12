@@ -268,6 +268,8 @@ class PazienteService:
                 session.close()
                 return {"status_code": "200", "email_nutrizionista": email_nutrizionista}, 200
                 #return {"message": "nutrizionista rimosso dal paziente con successo"}, 200
+            session.close()
+            return {"status_code":"400"}, 400
         elif response.get("status_code") == "400":
             session.close()
             return {"status_code":"400"}, 400
