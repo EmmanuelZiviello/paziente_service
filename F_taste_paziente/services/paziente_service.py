@@ -1,3 +1,4 @@
+from datetime import datetime
 from F_taste_paziente.repositories.paziente_repository import PazienteRepository
 #from flaskr.utils.kafka import KafkaProducer
 from F_taste_paziente.db import get_session
@@ -18,6 +19,7 @@ paziente_schema_for_load = PazienteSchema(only = ['email', 'password', 'sesso', 
 paziente_schema_for_dump = PazienteSchema(only=['id_paziente', 'sesso', 'data_nascita'])
 paziente_schema_post_return = PazienteSchema(only=['id_paziente'])
 pazienti_schema = PazienteSchema(many=True, only=['id_paziente'])
+paziente_schema_put = PazienteSchema(exclude=['email','password'], partial=['id_nutrizionista'])
 
 jwt_factory = JWTTokenFactory()
 
@@ -328,6 +330,40 @@ class PazienteService:
         paziente_dump = pazienteSchema.dump(paziente)
         session.close()
         return paziente_dump, 200
+    
+
+    @staticmethod
+    def update_paziente(s_paziente):
+        if "id_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente or ("sesso" not in s_paziente and "data_nascita" not in s_paziente):
+            return {"esito update_paziente":"Dati mancanti"}, 400
+        id_paziente=s_paziente["id_paziente"]
+        id_nutrizionista=s_paziente["id_nutrizionista"]
+        session=get_session('patient')
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"message": "Paziente non presente nel database"}, 404
+        if paziente.id_nutrizionista is None:
+            session.close()
+            return {'message' : 'Paziente non seguito da un nutrizionista'}, 403
+        #Se il paziente è associato al medico che fa la richiesta vengono gestiti i casi dinamicamente
+        if paziente.id_nutrizionista == id_nutrizionista:
+            if "data_nascita" in s_paziente:
+                paziente.data_nascita=datetime.strptime(s_paziente["data_nascita"], '%Y-%m-%d').date()
+            if "sesso" in s_paziente:
+                paziente.sesso=s_paziente["sesso"]
+            PazienteRepository.add(paziente,session)#per aggiornare i valori nel db
+            output_richiesta=paziente_schema_put.dump(paziente), 200
+            session.close()
+            return output_richiesta
+        else:
+            session.close()
+            return {'message' : 'paziente seguito da un\'altro nutrizionista'}, 403
+            
+
+        
+
+
 
         
 

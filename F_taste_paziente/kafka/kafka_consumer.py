@@ -23,6 +23,7 @@ consumer = KafkaConsumer(
     'patient.addDietitian.request',
     'patient.updateFk.request',
     'patient.removeFk.request',
+    'patient.update.request',
     'dietitian.removeFk.request',
     'dietitian.getPazienti.request',
     'dietitian.getPaziente.request',
@@ -96,5 +97,9 @@ def consume(app):
             elif topic == "dietitian.getPaziente.request":
                 response,status=PazienteService.get_paziente(data)
                 topic_producer="dietitian.getPaziente.success" if status == 200 else "dietitian.getPaziente.failed"
+                send_kafka_message(topic_producer,response)
+            elif topic == "patient.update.request":
+                response,status=PazienteService.update_paziente(data)
+                topic_producer="patient.update.success" if status == 200 else "patient.update.failed"
                 send_kafka_message(topic_producer,response)
             
