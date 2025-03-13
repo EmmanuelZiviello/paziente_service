@@ -23,6 +23,7 @@ consumer = KafkaConsumer(
     'patient.addDietitian.request',
     'patient.updateFk.request',
     'patient.removeFk.request',
+    'dietitian.removeFk.request',
     'dietitian.getPazienti.request',
     bootstrap_servers=KAFKA_BROKER_URL,
     client_id="patient_consumer",
@@ -86,5 +87,9 @@ def consume(app):
             elif topic == "dietitian.getPazienti.request":
                 response,status=PazienteService.get_pazienti(data)
                 topic_producer="dietitian.getPazienti.success" if status == 200 else "dietitian.getPazienti.failed"
+                send_kafka_message(topic_producer,response)
+            elif topic == "dietitian.removeFk.request":
+                response,status=PazienteService.remove_paziente(data)
+                topic_producer="dietitian.removeFk.success" if status == 200 else "dietitian.removeFk.failed"
                 send_kafka_message(topic_producer,response)
             

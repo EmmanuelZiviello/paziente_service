@@ -287,7 +287,26 @@ class PazienteService:
         elif response.get("status_code") == "404":
             session.close()
             return {"status_code":"404"}, 404
+    
+    @staticmethod
+    def remove_paziente(s_paziente):
+        if "id_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente:
+            return {"esito remove_paziente":"Dati mancanti"}, 400
+        id_paziente=s_paziente["id_paziente"]
+        id_nutrizionista=s_paziente["id_nutrizionista"]
+        session=get_session('patient')
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"message": "Paziente non presente nel database"}, 404
+        if (paziente.id_nutrizionista != id_nutrizionista):
+            session.close()
+            return {"message": "non segui questo paziente"}, 403
+        PazienteRepository.update_nutrizionista(paziente,None,session)
+        session.close()
+        return {"message": "non segui più questo paziente"}, 200
 
+        
 
     #non credo vada bene perchè non controlla la password
     @staticmethod
