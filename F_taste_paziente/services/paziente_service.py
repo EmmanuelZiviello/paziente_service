@@ -290,13 +290,11 @@ class PazienteService:
     
     @staticmethod
     def remove_paziente(s_paziente):
-        print(f"Body ricevuto: {s_paziente}")  # Controllo se il body è presente
         if "id_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente:
             return {"esito remove_paziente":"Dati mancanti"}, 400
-        id_paziente=s_paziente["id_paziente"]
-        print(f"ID Paziente ricevuto: {id_paziente}")  # Stampa ID paziente
-        id_nutrizionista=s_paziente["id_nutrizionista"]
         session=get_session('patient')
+        id_paziente=s_paziente["id_paziente"]
+        id_nutrizionista=s_paziente["id_nutrizionista"]
         paziente=PazienteRepository.find_by_id(id_paziente,session)
         if paziente is None:
             session.close()
@@ -307,6 +305,29 @@ class PazienteService:
         PazienteRepository.update_nutrizionista(paziente,None,session)
         session.close()
         return {"message": "non segui più questo paziente"}, 200
+    
+
+    @staticmethod
+    def get_paziente(s_paziente):
+        if "id_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente:
+            return {"esito remove_paziente":"Dati mancanti"}, 400
+        session=get_session('patient')
+        id_paziente=s_paziente["id_paziente"]
+        id_nutrizionista=s_paziente["id_nutrizionista"]
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"message": "Paziente non presente nel database"}, 404
+        if (paziente.id_nutrizionista != id_nutrizionista):
+            session.close()
+            return {"message" : "paziente seguito da un altro nutrizionista"}, 403
+        #prima di questo codice ci vuole un collegamento kafka con misurazioni per aggiornare ai valori più recenti
+        #anche se non l ho inserito perchè nel model originale non vengono salvati i parametri della misurazione
+        #quindi lascio i valori come il peso e l'altezza nel servizio misurazioni per maggior separazione di dati tra servizi
+        pazienteSchema = PazienteSchema(only=['id_paziente', 'sesso', 'data_nascita'])
+        paziente_dump = pazienteSchema.dump(paziente)
+        session.close()
+        return paziente_dump, 200
 
         
 
