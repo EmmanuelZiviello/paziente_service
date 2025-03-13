@@ -290,9 +290,11 @@ class PazienteService:
     
     @staticmethod
     def remove_paziente(s_paziente):
+        print(f"Body ricevuto: {s_paziente}")  # Controllo se il body è presente
         if "id_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente:
             return {"esito remove_paziente":"Dati mancanti"}, 400
         id_paziente=s_paziente["id_paziente"]
+        print(f"ID Paziente ricevuto: {id_paziente}")  # Stampa ID paziente
         id_nutrizionista=s_paziente["id_nutrizionista"]
         session=get_session('patient')
         paziente=PazienteRepository.find_by_id(id_paziente,session)
