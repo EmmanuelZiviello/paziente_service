@@ -162,7 +162,7 @@ class PazienteService:
             session.close()
             return {"message": "vecchia password errata"}, 401
         paziente.password = hash_pwd(new_password)
-        PazienteRepository.add(paziente)
+        PazienteRepository.add(paziente,session)
         session.close()
         if sensible_data:
             return {"message" : "Cambi password e dati sensibili avvenuti con successo."}, 201
