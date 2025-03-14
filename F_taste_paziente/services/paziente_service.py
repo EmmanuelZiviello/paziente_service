@@ -424,8 +424,8 @@ class PazienteService:
         if paziente is None:
             session.close()
             return {"message":"Paziente non trovato"},400
-        session.close()
         paziente_output=paziente_schema_for_dump.dump(paziente)
+        session.close()
         if paziente.sesso is None and paziente.data_nascita is None:
             return {"id_paziente":paziente.id_paziente}, 206
         return paziente_output, 200
