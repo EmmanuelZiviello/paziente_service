@@ -13,6 +13,8 @@ from flask_jwt_extended import create_access_token
 from F_taste_paziente.utils.encrypting_id import encrypt_id
 from F_taste_paziente.kafka.kafka_producer import send_kafka_message
 from F_taste_paziente.utils.kafka_helpers import wait_for_kafka_response
+from F_taste_paziente.utils.password_generator import PasswordGenerator as pg
+
 
 paziente_schema = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita'])
 paziente_schema_for_load = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita', 'id_paziente'])
@@ -127,22 +129,51 @@ class PazienteService:
 
 
     @staticmethod
-    def update_paziente_data(id_paziente, updated_data):
+    def update_paziente_data(id_paziente, s_paziente):
         session = get_session('patient')
-        try:
-            paziente=PazienteRepository.find_by_id(id_paziente,session)
-            if paziente is None:
-                return {"message":"Paziente non trovato"},404
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"message":"Paziente non trovato"}, 404
             #lo fa ma si dovrebbe hashare la password nuova prima di aggiungerla al db
             #si invia la vecchia e nuova pw al servizio auth, la verifica e hasha la nuova se va bene
-            paziente = PazienteRepository.update_by_id(paziente, updated_data, session)
-            if  paziente is None:
-                return {"message": "Dati paziente non aggiornati"}, 404
-            return {"message": "Dati aggiornati con successo"}, 200
-        except Exception as e:
-            return {"message": f"Errore durante l'aggiornamento: {str(e)}"}, 500
-        finally:
+        if "sesso" in s_paziente and "data_nascita" not in s_paziente or "sesso" not in s_paziente and "data_nascita" in s_paziente:
+            return {"message" : "Missing sesso or data_nascita field."}, 400
+        # Cambio password e dati sensibili
+        sensible_data=False
+        if "sesso" in s_paziente and "data_nascita" in s_paziente:
+            sesso=s_paziente["sesso"]
+            data_nascita=s_paziente["data_nascita"]
+            new_date=datetime.strptime(data_nascita, '%Y-%m-%d').date()
+            paziente.sesso=sesso
+            paziente.data_nascita=new_date
+            sensible_data=True
+        #Cambio della password
+                # Gestione dell'errore se mancano i campi della password
+        if "new_password" not in s_paziente or "password" not in s_paziente:
             session.close()
+            return {"message" : "Bad Request"}, 400
+        password=s_paziente["password"]
+        new_password=s_paziente["new_password"]
+        if not pg.isAStrongPassword(new_password):
+            session.close()
+            return {"message" : "La nuova password inserita non è abbastanza sicura."}, 400
+        if not check_pwd(password, paziente.password):
+            session.close()
+            return {"message": "vecchia password errata"}, 401
+        paziente.password = hash_pwd(new_password)
+        PazienteRepository.add(paziente)
+        session.close()
+        if sensible_data:
+            return {"message" : "Cambi password e dati sensibili avvenuti con successo."}, 201
+        else:
+            return { 'message' : 'cambio password avvenuto con successo'}, 201
+        
+
+
+
+
+
 
     @staticmethod
     def delete(s_paziente):
@@ -367,35 +398,38 @@ class PazienteService:
 
         
 
-    #non credo vada bene perchè non controlla la password
+    
     @staticmethod
-    def delete_paziente(id_paziente):
+    def delete_paziente(id_paziente,password):
         session = get_session('patient')
-        try:
-            if PazienteRepository.delete_by_id(id_paziente, session):
-                return {"message": "Paziente eliminato con successo"}, 200
-            return {"message": "Paziente non trovato"}, 404
-        except Exception as e:
-            return {"message": f"Errore durante l'eliminazione: {str(e)}"}, 500
-        finally:
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
             session.close()
+            return {"message": "Paziente non presente nel database"}, 404
+        
+        if check_pwd(password,paziente.password):
+            PazienteRepository.delete(paziente,session)
+            session.close()
+            return {'message': 'Paziente eliminato con successo'}, 200
+        session.close()
+        return {'message': 'Errore credenziali'}, 403
+
         
 
     @staticmethod
     def get_paziente_by_id(id_paziente):
         session = get_session('patient')
         # Recupero del paziente dal repository
-        try:
-            paziente=PazienteRepository.find_by_id(id_paziente,session)
-            if not paziente:
-                 return {"message":"Paziente non trovato"},400
-            return paziente_schema_for_dump.dump(paziente), 200
-        except Exception as e:
-            # Log dell'errore per debugging
-            print(f"Errore durante la ricerca del paziente: {e}")
-            return None 
-        finally:
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
             session.close()
+            return {"message":"Paziente non trovato"},400
+        session.close()
+        paziente_output=paziente_schema_for_dump.dump(paziente)
+        if paziente_output.sesso is None and paziente_output.data_nascita is None:
+            return {"id_paziente":paziente_output.data_nascita}, 206
+        return paziente_output, 200
+
     
     @staticmethod
     def visualizza_informativa():
