@@ -427,7 +427,7 @@ class PazienteService:
         session.close()
         paziente_output=paziente_schema_for_dump.dump(paziente)
         if paziente.sesso is None and paziente.data_nascita is None:
-            return {"id_paziente":paziente_output.id_paziente}, 206
+            return {"id_paziente":paziente.id_paziente}, 206
         return paziente_output, 200
 
     
