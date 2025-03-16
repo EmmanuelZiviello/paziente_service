@@ -207,6 +207,23 @@ class PazienteService:
         output_richiesta={"pazienti": pazienti_schema.dump(pazienti_data)}, 200
         session.close()
         return output_richiesta
+    
+    @staticmethod
+    def  exist_and_get(s_paziente):
+        if "id_nutrizionista" not in s_paziente:
+            return {"status_code":"400"}, 400
+            #return {"esito exist_Paziente":"Dati mancanti"}, 400
+        id_paziente=s_paziente["id_paziente"]
+        session=get_session('patient')
+        paziente=PazienteRepository.find_by_id(id_paziente,session)
+        if paziente is None:
+            session.close()
+            return {"status_code":"404"}, 404
+            #return {"message": "Paziente non presente nel database"}, 404
+        id_nutrizionista=paziente.id_nutrizionista
+        session.close()
+        return {"status_code":"200", "id_nutrizionista":id_nutrizionista}, 200
+        #return {"message":"Paziente presente nel database"}, 200
 
     @staticmethod
     def add_dietitian(s_paziente):

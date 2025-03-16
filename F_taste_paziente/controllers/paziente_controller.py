@@ -40,7 +40,7 @@ check_put_schema = PazienteSchema(only=['id_paziente','password'])
 class Paziente(Resource):
 
    
-    #da provare
+    
     @paziente_required()
     @paziente_ns.expect(update_patient_data)
     @paziente_ns.doc('Cambio password, sesso e data di nascita del paziente.')
@@ -51,7 +51,7 @@ class Paziente(Resource):
         id_paziente = get_jwt_identity()
         return PazienteService.update_paziente_data(id_paziente, updated_data)
 
-    #da provare
+    
     @paziente_required()
     @paziente_ns.doc('recupera paziente')
     def get(self):
