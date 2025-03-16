@@ -210,7 +210,7 @@ class PazienteService:
     
     @staticmethod
     def  exist_and_get(s_paziente):
-        if "id_nutrizionista" not in s_paziente:
+        if "id_paziente" not in s_paziente:
             return {"status_code":"400"}, 400
             #return {"esito exist_Paziente":"Dati mancanti"}, 400
         id_paziente=s_paziente["id_paziente"]
