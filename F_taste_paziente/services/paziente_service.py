@@ -68,13 +68,15 @@ class PazienteService:
 
         # Genera un ID valido per il paziente
         s_paziente['id_paziente'] = genera_id_valido()
-
+        id_paziente=s_paziente['id_paziente']
         # Crea l'oggetto Paziente e salva la password in formato hash
         paziente = paziente_schema_for_load.load(s_paziente, session=session)
         paziente.password = hash_pwd(s_paziente['password'])
 
         # Salva il paziente nel database
         PazienteRepository.add(paziente, session)
+        message={"id_paziente":id_paziente}
+        send_kafka_message("consensi.add.request",message)#manda richiesta kafka per aggiungere consensi defaul dell'utente
 
         # Prepara la risposta con i dati del paziente
         output_richiesta = paziente_schema_post_return.dump(paziente), 201

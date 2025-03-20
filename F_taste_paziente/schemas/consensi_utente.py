@@ -7,7 +7,6 @@ class ConsensiUtenteSchema(ma.SQLAlchemyAutoSchema):
         model = ConsensiUtenteModel
         load_instance = True
         # sqla_session = db.session
-        include_fk = True
 
     condivisione_misurazioni_paziente = fields.Boolean(required=True)
     storage_from_Google_fit = fields.Boolean(required=True)
