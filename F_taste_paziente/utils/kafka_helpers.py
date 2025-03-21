@@ -19,6 +19,8 @@ consumer_response = KafkaConsumer(
     'dietitian.email.failed',
     'patient.getNutrizionista.success',
     'patient.getNutrizionista.failed',
+    'misurazioni.getLastMedico.success',
+    'misurazioni.getLastMedico.failed',
     bootstrap_servers=KAFKA_BROKER_URL,
     client_id="patient_consumer",
     group_id="patient_service_response",

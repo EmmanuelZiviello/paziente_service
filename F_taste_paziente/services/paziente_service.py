@@ -378,6 +378,16 @@ class PazienteService:
         #quindi lascio i valori come il peso e l'altezza nel servizio misurazioni per maggior separazione di dati tra servizi
         pazienteSchema = PazienteSchema(only=['id_paziente', 'sesso', 'data_nascita'])
         paziente_dump = pazienteSchema.dump(paziente)
+        message={"id_paziente":id_paziente}
+        send_kafka_message("misurazioni.getLastMedico.request",message)
+        response=wait_for_kafka_response(["misurazioni.getLastMedico.success", "misurazioni.getLastMedico.failed"])
+        if response.get("status_code") == "200":
+            peso=response.get("peso")
+            altezza=response.get("altezza")
+            menopausa=response.get("menopausa")
+            paziente_dump["peso"]=peso
+            paziente_dump["altezza"]=altezza
+            paziente_dump["menopausa"]=menopausa
         session.close()
         return paziente_dump, 200
     
