@@ -92,7 +92,7 @@ class PazienteService:
 
     @staticmethod
     def nutrizionista_register_paziente(s_paziente):
-        if "email_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente or "email_nutrizionista" in s_paziente:
+        if "email_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente or "email_nutrizionista" not in s_paziente:
             return {"status_code":"400"}, 400
         email_paziente=s_paziente["email_paziente"]
         id_nutrizionista=s_paziente["id_nutrizionista"]
