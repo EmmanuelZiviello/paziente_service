@@ -14,7 +14,6 @@ class PazienteModel(Base):
     password = Column(LargeBinary, nullable=False)
     sesso = Column(Boolean)
     id_nutrizionista = Column(Integer, nullable=True)
-    consensi_utente = relationship("ConsensiUtenteModel", back_populates='paziente', lazy=True, cascade='delete', uselist=False)
     richieste_aggiunta_paziente = relationship("RichiestaAggiuntaPazienteModel", back_populates='paziente',lazy=True, cascade='all, delete')
     richieste_revocate = relationship("RichiestaRevocataModel", lazy=True, cascade='all, delete-orphan')
 
