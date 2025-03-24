@@ -92,12 +92,15 @@ class PazienteService:
 
     @staticmethod
     def nutrizionista_register_paziente(s_paziente):
-        if "email_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente or "email_nutrizionista" not in s_paziente:
+        if "email_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente or "email_nutrizionista"  not in s_paziente:
             return {"status_code":"400"}, 400
         email_paziente=s_paziente["email_paziente"]
         id_nutrizionista=s_paziente["id_nutrizionista"]
         email_nutrizionista=s_paziente["email_nutrizionista"]
         del s_paziente["id_nutrizionista"]#non so se serve o si può eliminare
+        del s_paziente["email_paziente"]
+        del s_paziente["email_nutrizionista"]
+        s_paziente["email"]=email_paziente
         session = get_session('patient')
         # Verifica se l'email esiste già
         if PazienteRepository.find_by_email(email_paziente, session) is not None:
