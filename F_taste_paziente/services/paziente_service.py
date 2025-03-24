@@ -156,11 +156,11 @@ class PazienteService:
         if paziente is None:
             session.close()
             return {"esito_recuperopw": "Paziente non trovato"}, 401
+        email_paziente=paziente.email
         session.close()
         token=create_access_token(credentials.reset_password,ACCESS_EXPIRES)
         link=credentials.endpoint + "/password_reset?jwt=" + token + "&id=" + encrypt_id(id_paziente)
         # **Invia un messaggio Kafka al servizio Email**
-        email_paziente=paziente.email
         message={"id_paziente":id_paziente,"email_paziente":email_paziente,"link":link}
         send_kafka_message("email.recuperopw.request",message)
         return {"esito_cambiopw":"Email di recupero password inviata con successo"}, 200
