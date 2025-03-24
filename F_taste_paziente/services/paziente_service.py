@@ -14,11 +14,12 @@ from F_taste_paziente.utils.encrypting_id import encrypt_id
 from F_taste_paziente.kafka.kafka_producer import send_kafka_message
 from F_taste_paziente.utils.kafka_helpers import wait_for_kafka_response
 from F_taste_paziente.utils.password_generator import PasswordGenerator as pg
-
+from F_taste_paziente.utils.password_generator import PasswordGenerator
 
 paziente_schema = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita'])
 paziente_schema_for_load = PazienteSchema(only = ['email', 'password', 'sesso', 'data_nascita', 'id_paziente'])
 paziente_schema_for_dump = PazienteSchema(only=['id_paziente', 'sesso', 'data_nascita'])
+paziente_schema_post = PazienteSchema(partial=['id_paziente', 'id_nutrizionista', 'data_nascita', 'sesso', 'password'], load_only=['id_paziente', 'password'])
 paziente_schema_post_return = PazienteSchema(only=['id_paziente'])
 pazienti_schema = PazienteSchema(many=True, only=['id_paziente'])
 paziente_schema_put = PazienteSchema(exclude=['email','password'], partial=['id_nutrizionista'])
@@ -69,6 +70,7 @@ class PazienteService:
         # Genera un ID valido per il paziente
         s_paziente['id_paziente'] = genera_id_valido()
         id_paziente=s_paziente['id_paziente']
+        email_paziente=s_paziente['email']
         # Crea l'oggetto Paziente e salva la password in formato hash
         paziente = paziente_schema_for_load.load(s_paziente, session=session)
         paziente.password = hash_pwd(s_paziente['password'])
@@ -77,12 +79,51 @@ class PazienteService:
         PazienteRepository.add(paziente, session)
         message={"id_paziente":id_paziente}
         send_kafka_message("consensi.add.request",message)#manda richiesta kafka per aggiungere consensi defaul dell'utente
-
+        message={"id_paziente":id_paziente,"email_paziente":email_paziente}
+        send_kafka_message("email.pazienteRegistration.request",message)
         # Prepara la risposta con i dati del paziente
         output_richiesta = paziente_schema_post_return.dump(paziente), 201
         session.close()
         
         return output_richiesta
+    
+
+
+
+    @staticmethod
+    def nutrizionista_register_paziente(s_paziente):
+        if "email_paziente" not in s_paziente or "id_nutrizionista" not in s_paziente or "email_nutrizionista" in s_paziente:
+            return {"status_code":"400"}, 400
+        email_paziente=s_paziente["email_paziente"]
+        id_nutrizionista=s_paziente["id_nutrizionista"]
+        email_nutrizionista=s_paziente["email_nutrizionista"]
+        del s_paziente["id_nutrizionista"]#non so se serve o si può eliminare
+        session = get_session('patient')
+        # Verifica se l'email esiste già
+        if PazienteRepository.find_by_email(email_paziente, session) is not None:
+            session.close()
+            return {"status_code": "409"}, 409
+
+        # Genera un ID valido per il paziente
+        s_paziente['id_paziente'] = genera_id_valido()
+        id_paziente=s_paziente['id_paziente']
+        passwordGenerator = PasswordGenerator()
+        password = passwordGenerator.generatePassword()
+        s_paziente['password'] =  password
+        paziente = paziente_schema_post.load(s_paziente, session = session)
+        # Crea l'oggetto Paziente e salva la password in formato hash
+        paziente.password = hash_pwd(password)
+        paziente.id_nutrizionista=id_nutrizionista
+        # Salva il paziente nel database
+        PazienteRepository.add(paziente, session)
+        message={"id_paziente":id_paziente}
+        send_kafka_message("consensi.add.request",message)#manda richiesta kafka per aggiungere consensi defaul dell'utente
+        message={"id_paziente":id_paziente,"email_paziente":email_paziente,"password":password,"email_nutrizionista":email_nutrizionista}
+        send_kafka_message("email.pazienteRegistrationMedico.request",message)
+        message={"id_paziente":id_paziente,"id_nutrizionista":id_nutrizionista}
+        send_kafka_message("patient.addRichiesta.request",message)
+        return {"status_code": "201"}, 201
+
     
     @staticmethod
     def cambio_pw(s_paziente):
