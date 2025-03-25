@@ -16,6 +16,7 @@ class PazienteModel(Base):
     id_nutrizionista = Column(Integer, nullable=True)
     richieste_aggiunta_paziente = relationship("RichiestaAggiuntaPazienteModel", back_populates='paziente',lazy=True, cascade='all, delete')
     richieste_revocate = relationship("RichiestaRevocataModel", lazy=True, cascade='all, delete-orphan')
+    consensi_utente = relationship("ConsensiUtenteModel", back_populates='paziente', lazy=True, cascade='delete', uselist=False)
 
     def __init__(self, id_paziente, email, password, data_nascita=None, sesso=None, id_nutrizionista=None):
         self.id_paziente = id_paziente
