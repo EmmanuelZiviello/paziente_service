@@ -1,6 +1,5 @@
 from F_taste_paziente.db import get_session
 from F_taste_paziente.models.paziente import PazienteModel
-from F_taste_paziente.models.nutrizionista import NutrizionistaModel
 from sqlalchemy.exc import SQLAlchemyError
 
 class PazienteRepository:
