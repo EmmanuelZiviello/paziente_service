@@ -1,5 +1,4 @@
 from F_taste_paziente.db import Base
-from F_taste_paziente.models.consensi_utente import ConsensiUtenteModel
 
 from sqlalchemy import Column, String, Date, ForeignKey, Integer, LargeBinary, Boolean
 from sqlalchemy.orm import relationship, backref
@@ -24,7 +23,7 @@ class PazienteModel(Base):
         self.password = password
         self.id_nutrizionista = id_nutrizionista
         self.sesso = sesso
-        self.consensi_utente = ConsensiUtenteModel(id_paziente)
+        
 
 
     def __repr__(self):
